@@ -1,0 +1,43 @@
+{
+    "name": "gabrielandy/coindesk",
+    "description": "Coindesk API wrapper",
+    "keywords": ["coindesk", "converter", "bitcoin", "php", "laravel"],
+    "authors": [
+        {
+            "name": "Andikan Gabriel",
+            "email": "andikan@sure.ng"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^7.2",
+        "guzzlehttp/guzzle": "~6.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "GabrielAndy\\Coindesk\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "GabrielAndy\\Coindesk\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "minimum-stability": "stable",
+    "extra": {
+        "laravel": {
+            "providers": [
+                "GabrielAndy\\Coindesk\\CoindeskServiceProvider"
+            ],
+            "aliases": {
+                "Coindesk": "GabrielAndy\\Coindesk\\Facades\\Coindesk"
+            }
+        }
+    }
+}
