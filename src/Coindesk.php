@@ -27,7 +27,7 @@ class Coindesk implements CryptoFiatInterface
     }
 
     /**
-     * Get rate of currency.
+     * Get the rate of a currency to Bitcoin.
      *
      * @param  string $currencyCode
      * @return float
@@ -48,7 +48,7 @@ class Coindesk implements CryptoFiatInterface
 	}
 
     /**
-     * Get exchange rates in associative array.
+     * Get Bitcoin exchange rates in an associative array.
      *
      * @return array
      */
@@ -161,7 +161,7 @@ class Coindesk implements CryptoFiatInterface
     public function formatToCurrency($currencyCode, $value)
     {
         if (Helper::isCryptoCurrency($currencyCode)) {
-            return round($value, 5, PHP_ROUND_HALF_UP);
+            return round($value, 8, PHP_ROUND_HALF_UP);
         }
         if (Helper::isFiatCurrency($currencyCode)) {
             return round($value, 2, PHP_ROUND_HALF_UP);
