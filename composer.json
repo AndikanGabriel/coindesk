@@ -1,43 +1,62 @@
 {
     "name": "gabrielandy/coindesk",
-    "description": "Coindesk API wrapper",
-    "keywords": ["coindesk", "converter", "bitcoin", "php", "laravel"],
+    "description": "CoinDesk Bitcoin Price Index API for Laravel",
+    "keywords": [
+        "bpi",
+        "bitcoin",
+        "coindesk",
+        "converter",
+        "crypto",
+        "laravel",
+        "php"
+    ],
+    "license": "MIT",
     "authors": [
         {
             "name": "Andikan Gabriel",
-            "email": "andikan@sure.ng"
+            "email": "master@andikangabriel.com",
+            "role": "Developer"
         }
     ],
-    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/AndikanGabriel/coindesk/issues"
+    },
     "require": {
         "php": "^7.2",
-        "guzzlehttp/guzzle": "~6.0"
+        "guzzlehttp/guzzle": "~6.0",
     },
     "require-dev": {
         "phpunit/phpunit": "^8.0"
     },
     "autoload": {
         "psr-4": {
-            "GabrielAndy\\Coindesk\\": "src"
+            "GabrielAndy\\Coindesk\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "GabrielAndy\\Coindesk\\Tests\\": "tests"
+            "GabrielAndy\\Coindesk\\Tests\\": "tests/"
         }
     },
-    "scripts": {
-        "test": "vendor/bin/phpunit"
-    },
-    "minimum-stability": "stable",
     "extra": {
         "laravel": {
             "providers": [
                 "GabrielAndy\\Coindesk\\CoindeskServiceProvider"
             ],
             "aliases": {
-                "Coindesk": "GabrielAndy\\Coindesk\\Facades\\Coindesk"
+                "Coindesk": "GabrielAndy\\Coindesk\\CoindeskFacade"
             }
         }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-win": "vendor\\bin\\phpunit",
+        "test-coverage": "phpdbg -qrr vendor/phpunit/phpunit/phpunit"
     }
 }
