@@ -1,10 +1,10 @@
 <?php
 
-namespace GabrielAndy\Coindesk\Facades;
+namespace GabrielAndy\Coindesk;
 
 use Illuminate\Support\Facades\Facade;
 
-class Coindesk extends Facade
+class CoindeskFacade extends Facade
 {
     /**
      * Get the registered name of the component.
