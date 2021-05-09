@@ -30,7 +30,7 @@ class CoindeskServiceProvider extends ServiceProvider
 
         $this->app->bind('coindesk', function ($app) {
             return (new Coindesk(new Client))
-                ->setApiURL(config('coindesk.apiUrl'));
+                ->setEndpoint(config('coindesk.endpoint'));
         });
     }
 }

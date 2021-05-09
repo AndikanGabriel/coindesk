@@ -2,50 +2,85 @@
 
 namespace GabrielAndy\Coindesk;
 
+use GabrielAndy\Coindesk\Exceptions\CoindeskException;
+use GabrielAndy\Coindesk\Exceptions\HttpException;
+use GabrielAndy\Coindesk\Exceptions\UnsupportedCurrencyCode;
 use GuzzleHttp\Client;
-use GabrielAndy\Coindesk\Exceptions\ErrorsException;
+use GuzzleHttp\Exception\GuzzleException;
 
-class Coindesk implements CryptoFiatInterface
+class Coindesk
 {
-    /** @var \GuzzleHttp\Client */
+    /**
+     * The GuzzleHttpClient instance.
+     *
+     * @var \GuzzleHttp\Client
+     */
     protected $client;
 
-    /** @var string */
-    protected $apiEndpoint;
+    /**
+     * The Coindesk API endpoint.
+     *
+     * @var string
+     */
+    protected $endpoint;
 
+    /**
+     * Coindesk's supported currencies.
+     *
+     * @var array
+     */
+    protected $supportedCurrencies = [
+        'USD',
+        'GBP',
+        'EUR',
+    ];
 
+    /**
+     * Create a new Coindesk instance.
+     *
+     * @param  \GuzzleHttp\Client  $client
+     * @return void
+     */
     public function __construct(Client $client)
     {
         $this->client = $client;
     }
 
-    public function setAPIUrl(string $apiEndpoint)
+    /**
+     * Set the Coindesk's API endpoint being used.
+     *
+     * @param  \GuzzleHttp\Client  $client
+     * @return void
+     */
+    public function setEndpoint(string $endpoint)
     {
-    	$this->apiEndpoint = $apiEndpoint;
+        $this->endpoint = $endpoint;
 
-    	return $this;
+        return $this;
     }
 
     /**
      * Get the rate of a currency to Bitcoin.
      *
-     * @param  string $currencyCode
+     * @param  string  $currencyCode
      * @return float
+     *
+     * @throws \GabrielAndy\Coindesk\Exceptions\UnsupportedCurrencyCode
      */
-	public function retrieveRate($currencyCode)
-	{
-        if (! Helper::isCurrencyCode($currencyCode)) {
-            throw ErrorsException::customError("Argument passed is not a valid currency code, '{$currencyCode}' given.");
+    public function retrieveRate($currencyCode)
+    {
+        if (! in_array(
+            strtoupper($currencyCode), $this->supportedCurrencies
+        )) {
+            throw new UnsupportedCurrencyCode(
+                "The currency, '{$currencyCode}' is not supported by Coindesk."
+            );
         }
 
         $exchangeRates = $this->getExchangeRates();
 
-        if (! Helper::currencySupport($currencyCode, $this->exchangeRates)) {
-            throw ErrorsException::customError("{$currencyCode} currency code is not supported by Coindesk.");
-        }
-
         return $exchangeRates[strtoupper($currencyCode)];
-	}
+    }
 
     /**
      * Get Bitcoin exchange rates in an associative array.
@@ -64,7 +99,8 @@ class Coindesk implements CryptoFiatInterface
     /**
      * Set exchange rates.
      *
-     * @param array $exchangeRatesArray
+     * @param  array  $exchangeRatesArray
+     * @return void
      */
     protected function setExchangeRates($exchangeRatesArray)
     {
@@ -78,7 +114,9 @@ class Coindesk implements CryptoFiatInterface
      */
     protected function retrieveExchangeRates()
     {
-        $exchangeRatesArray = $this->parseToExchangeRatesArray($this->fetchExchangeRates());
+        $exchangeRatesArray = $this->parseToExchangeRatesArray(
+            $this->fetchExchangeRates()
+        );
 
         return $exchangeRatesArray;
     }
@@ -86,24 +124,26 @@ class Coindesk implements CryptoFiatInterface
     /**
      * Fetch exchange rates json data from API endpoint.
      *
-     * @return string|json
+     * @return string
+     *
+     * @throws \GabrielAndy\Coindesk\Exceptions\CoindeskException
      */
     protected function fetchExchangeRates()
     {
-        $response = $this->client->request('GET', $this->apiEndpoint);
+        try {
+            $response = $this->client->request('GET', $this->endpoint);
 
-        if ($response->getStatusCode() != 200) {
-            throw ErrorsException::customError("Not OK response received from API endpoint.");
+            return $response->getBody();
+        } catch (GuzzleException $e) {
+            throw new HttpException($e->getMessage());
         }
-
-        return $response->getBody();
     }
 
     /**
      * Parse retrieved JSON data to exchange rates associative array.
      * i.e. ['BTC' => 1, 'USD' => 4000.00, ...]
      *
-     * @param  string|json $rawJsonData
+     * @param  string  $rawJsonData
      * @return array
      */
     protected function parseToExchangeRatesArray($rawJsonData)
@@ -118,87 +158,87 @@ class Coindesk implements CryptoFiatInterface
     }
 
     /**
-     * Convert Bitcoin amount to a specific currency.
+     * Convert Bitcoin amount to a Coindesk's supported fiat currency.
      *
-     * @param  string $currencyCode
+     * @param  string  $currencyCode
      * @param  float  $btcAmount
-     * @return float
+     * @return string
+     *
+     * @throws \GabrielAndy\Coindesk\Exceptions\CoindeskException
      */
-	public function toCurrency($currencyCode, $btcAmount)
-	{
+    public function toFiatCurrency($currencyCode, $btcAmount)
+    {
+        if (! is_numeric($btcAmount)) {
+            throw new CoindeskException("
+                Amount should be numeric, '{$btcAmount}' given."
+            );
+        }
+
         $rate = $this->retrieveRate($currencyCode);
 
         $value = $this->computeCurrencyValue($btcAmount, $rate);
 
-        return $this->formatToCurrency($currencyCode, $value);
-	}
+        return number_format(
+            $value,
+            config('coindesk.btc_fiat_precision'),
+            '.',
+            ''
+        );
+    }
 
     /**
      * Compute currency value.
      *
-     * @param  float $btcAmount
-     * @param  float $rate
+     * @param  float  $btcAmount
+     * @param  float  $rate
      * @return float
-     * @throws Jimmerioles\BitcoinCurrencyConverter\Exception\InvalidArgumentException
      */
     public function computeCurrencyValue($btcAmount, $rate)
     {
-        if (! is_numeric($btcAmount)) {
-            throw ErrorsException::customError("Argument \$btcAmount should be numeric, '{$btcAmount}' given.");
-        }
+        $rate = is_numeric($rate) ? $rate : (float) $rate;
 
         return $btcAmount * $rate;
     }
-
-
-    /**
-     * Format value based on currency.
-     *
-     * @param  string $currencyCode
-     * @param  float  $value
-     * @return float
-     */
-    public function formatToCurrency($currencyCode, $value)
-    {
-        if (Helper::isCryptoCurrency($currencyCode)) {
-            return round($value, 8, PHP_ROUND_HALF_UP);
-        }
-        if (Helper::isFiatCurrency($currencyCode)) {
-            return round($value, 2, PHP_ROUND_HALF_UP);
-        }
-        throw ErrorsException::customError("Argument \$currencyCode not valid currency code, '{$currencyCode}' given.");
-    }
-
 
     /**
      * Convert currency amount to Bitcoin.
      *
      * @param  float  $amount
-     * @param  string $currency
-     * @return float
+     * @param  string  $currency
+     * @return string
      */
     public function toBtc($amount, $currencyCode)
     {
+        if (! is_numeric($amount)) {
+            throw new CoindeskException("
+                Amount should be numeric, '{$amount}' given."
+            );
+        }
+
         $rate = $this->retrieveRate($currencyCode);
 
         $value = $this->computeBtcValue($amount, $rate);
 
-        return $this->formatToCurrency('BTC', $value);
+        return number_format(
+            $value,
+            config('coindesk.fiat_btc_precision'),
+            '.',
+            ''
+        );
     }
 
     /**
      * Compute Bitcoin value.
      *
-     * @param  float $amount
-     * @param  float $rate
+     * @param  float  $amount
+     * @param  float  $rate
      * @return float
-     * @throws Jimmerioles\BitcoinCurrencyConverter\Exception\InvalidArgumentException
+     *
+     * @throws \GabrielAndy\Coindesk\Exceptions\CoindeskException
      */
     public function computeBtcValue($amount, $rate)
     {
-        if (! is_numeric($amount)) {
-            throw ErrorsException::customError("Argument \$amount should be numeric, '{$amount}' given.");
-        }
+        $rate = is_numeric($rate) ? $rate : (float) $rate;
 
         return $amount / $rate;
     }
