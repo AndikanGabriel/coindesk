@@ -1,6 +1,10 @@
 # Changelog
 
-## [Unreleased](https://github.com/AndikanGabriel/coindesk/compare/v1.0.0...1.x)
+## [Unreleased](https://github.com/AndikanGabriel/coindesk/compare/v1.0.1...1.x)
+
+## [v1.0.1](https://github.com/AndikanGabriel/coindesk/compare/v1.0.0...v1.0.1) - 2021-05-12
+### Added
+- Add test suites [(#5)](https://github.com/AndikanGabriel/coindesk/pull/5)
 
 ## [v1.0.0](https://github.com/AndikanGabriel/coindesk/compare/v0.1.0...v1.0.0) - 2021-05-10
 ### Added
