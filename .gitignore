@@ -1,3 +1,7 @@
 /vendor/
 /composer.phar
 /composer.lock
+
+# tests suite
+/.phpunit.result.cache
+/build
