@@ -11,3 +11,35 @@ Contributions are **welcome**. Please report any issue you find in the [issues p
 * Please **create feature branches** for your pull requests.
 * **One pull request per feature** - If you want to do more than one thing, send multiple pull requests.
 * You may also need to [rebase](http://git-scm.com/book/en/Git-Branching-Rebasing) to avoid merge conflicts.
+
+## Running Tests
+
+You will need an installation of [Composer](https://getcomposer.org) before continuing.
+
+First, install the dependencies:
+
+```bash
+$ composer install
+```
+
+Then run phpunit:
+
+```bash
+$ composer test
+```
+
+For window users:
+
+```bash
+$ composer test-win
+```
+
+Ensure to have a good code coverage during your tests:
+
+```bash
+$ composer test-coverage
+```
+
+If the test suite passes on your local machine you should be good to go.
+
+Happy coding!
