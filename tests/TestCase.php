@@ -34,4 +34,4 @@ abstract class TestCase extends OrchestraTestCase
             'Coindesk' => CoindeskFacade::class,
         ];
     }
-} 
+}

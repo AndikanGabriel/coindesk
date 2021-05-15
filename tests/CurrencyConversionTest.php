@@ -1,6 +1,6 @@
 <?php
 
-namespace GabrielAndy\Coindesk\Tests\Feature;
+namespace GabrielAndy\Coindesk\Tests;
 
 use Coindesk;
 use GabrielAndy\Coindesk\Exceptions\CoindeskException;
