@@ -22,8 +22,8 @@
         "issues": "https://github.com/AndikanGabriel/coindesk/issues"
     },
     "require": {
-        "php": "^7.4 || ^8.0",
-        "guzzlehttp/guzzle": "^7.0",
+        "php": "^7.3 || ^8.0",
+        "guzzlehttp/guzzle": "^7.0.1",
         "illuminate/support": "^8.40"
     },
     "require-dev": {
