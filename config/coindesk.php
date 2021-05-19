@@ -5,15 +5,10 @@ return [
     /*
      * Coindesk's endpoint.
      */
-    'endpoint' => 'https://api.coindesk.com/v1/bpi/currentprice.json',
+    'endpoint' => 'https://api.coindesk.com/v1/bpi/currentprice',
 
     /*
-     * Precision for the conversion of fiat currency to bitcoin.
+     * Coindesk's supported currencies endpoint.
      */
-    'fiat_btc_precision' => 6,
-
-    /*
-     * Precision for the conversion of bitcoin to fiat currency.
-     */
-    'btc_fiat_precision' => 2,
+    'supported_currency_endpoint' => 'https://api.coindesk.com/v1/bpi/supported-currencies.json',
 ];

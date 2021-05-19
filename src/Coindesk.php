@@ -7,6 +7,7 @@ use GabrielAndy\Coindesk\Exceptions\HttpException;
 use GabrielAndy\Coindesk\Exceptions\UnsupportedCurrencyCode;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Str;
 
 class Coindesk
 {
@@ -25,15 +26,22 @@ class Coindesk
     protected $endpoint;
 
     /**
-     * Coindesk's supported currencies.
+     * Supported currencies in which conversion
+     * takes place per minute.
      *
      * @var array
      */
-    protected $supportedCurrencies = [
+    protected $bpiCurrencies = [
         'USD',
         'GBP',
         'EUR',
     ];
+
+    /**
+     *
+     * @var bool
+     */
+    protected $bpiCurrencyMode = false;
 
     /**
      * Create a new Coindesk instance.
@@ -69,25 +77,53 @@ class Coindesk
      */
     public function retrieveRate($currencyCode)
     {
-        if (! in_array(
-            strtoupper($currencyCode), $this->supportedCurrencies
-        )) {
-            throw new UnsupportedCurrencyCode(
-                "The currency, '{$currencyCode}' is not supported by Coindesk."
-            );
+        $this->currency = Str::upper($currencyCode);
+
+        if (in_array($this->currency, $this->bpiCurrencies)) {
+            $this->bpiCurrencyMode = true;
+        } else {
+            if (! in_array($this->currency, $this->supportedCurrencies())) {
+                throw new UnsupportedCurrencyCode(
+                    "The currency, '{$currencyCode}' is not supported by Coindesk."
+                );
+            }
         }
 
-        $exchangeRates = $this->getExchangeRates();
-
-        return $exchangeRates[strtoupper($currencyCode)];
+        return $this->getExchangeRates()[$this->currency];
     }
 
     /**
-     * Get Bitcoin exchange rates in an associative array.
+     * Get currencies supported by Coindesk.
+     *
+     * @return array
+     *
+     * @throws \GabrielAndy\Coindesk\Exceptions\HttpException
+     */
+    protected function supportedCurrencies(): array
+    {
+        try {
+            $response = $this->client
+                             ->request('GET', config('coindesk.supported_currency_endpoint'))
+                             ->getBody();
+
+            $supportedCurrencies = json_decode($response, true);
+
+            foreach ($supportedCurrencies as $currency) {
+                $currencies[] = $currency['currency'];
+            }
+
+            return $currencies;
+        } catch (GuzzleException $e) {
+            throw new HttpException($e->getMessage());
+        }
+    }
+
+    /**
+     * Get Bitcoin exchange rates.
      *
      * @return array
      */
-    protected function getExchangeRates()
+    protected function getExchangeRates(): array
     {
         if (empty($this->exchangeRates)) {
             $this->setExchangeRates($this->retrieveExchangeRates());
@@ -99,12 +135,12 @@ class Coindesk
     /**
      * Set exchange rates.
      *
-     * @param  array  $exchangeRatesArray
+     * @param  array  $exchangeRates
      * @return void
      */
-    protected function setExchangeRates($exchangeRatesArray)
+    protected function setExchangeRates(array $exchangeRates)
     {
-        $this->exchangeRates = $exchangeRatesArray;
+        $this->exchangeRates = $exchangeRates;
     }
 
     /**
@@ -112,7 +148,7 @@ class Coindesk
      *
      * @return array
      */
-    protected function retrieveExchangeRates()
+    protected function retrieveExchangeRates(): array
     {
         $exchangeRatesArray = $this->parseToExchangeRatesArray(
             $this->fetchExchangeRates()
@@ -126,12 +162,14 @@ class Coindesk
      *
      * @return string
      *
-     * @throws \GabrielAndy\Coindesk\Exceptions\CoindeskException
+     * @throws \GabrielAndy\Coindesk\Exceptions\HttpException
      */
-    protected function fetchExchangeRates()
+    protected function fetchExchangeRates(): string
     {
         try {
-            $response = $this->client->request('GET', $this->endpoint);
+            $response = ($this->bpiCurrencyMode == true)
+                ? $this->client->request('GET', "$this->endpoint.json")
+                : $this->client->request('GET', "$this->endpoint/$this->currency.json");
 
             return $response->getBody();
         } catch (GuzzleException $e) {
@@ -162,11 +200,11 @@ class Coindesk
      *
      * @param  string  $currencyCode
      * @param  float  $btcAmount
-     * @return string
+     * @return float
      *
      * @throws \GabrielAndy\Coindesk\Exceptions\CoindeskException
      */
-    public function toFiatCurrency($currencyCode, $btcAmount)
+    public function toFiatCurrency($currencyCode, $btcAmount): float
     {
         if (! is_numeric($btcAmount)) {
             throw new CoindeskException("
@@ -176,14 +214,7 @@ class Coindesk
 
         $rate = $this->retrieveRate($currencyCode);
 
-        $value = $this->computeCurrencyValue($btcAmount, $rate);
-
-        return number_format(
-            $value,
-            config('coindesk.btc_fiat_precision'),
-            '.',
-            ''
-        );
+        return $this->computeCurrencyValue($btcAmount, $rate);
     }
 
     /**
@@ -207,7 +238,7 @@ class Coindesk
      * @param  string  $currency
      * @return string
      */
-    public function toBtc($amount, $currencyCode)
+    public function toBtc($amount, $currencyCode): string
     {
         if (! is_numeric($amount)) {
             throw new CoindeskException("
@@ -217,14 +248,7 @@ class Coindesk
 
         $rate = $this->retrieveRate($currencyCode);
 
-        $value = $this->computeBtcValue($amount, $rate);
-
-        return number_format(
-            $value,
-            config('coindesk.fiat_btc_precision'),
-            '.',
-            ''
-        );
+        return $this->computeBtcValue($amount, $rate);
     }
 
     /**
