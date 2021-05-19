@@ -45,7 +45,7 @@ class CurrencyConversionTest extends TestCase
     {
         $this->expectException(UnsupportedCurrencyCode::class);
 
-        Coindesk::toBtc(1, 'NGN');
+        Coindesk::toBtc(1, 'LED');
     }
 
     /**
