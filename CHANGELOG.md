@@ -1,6 +1,13 @@
 # Changelog
 
-## [Unreleased](https://github.com/AndikanGabriel/coindesk/compare/v1.0.2...1.x)
+## [Unreleased](https://github.com/AndikanGabriel/coindesk/compare/v1.1.0...1.x)
+
+## [v1.1.0](https://github.com/AndikanGabriel/coindesk/compare/v1.0.2...v1.1.0) - 2021-06-09
+### Added
+- Extend support for more fiat currencies-bitcoin conversion [(#6)](https://github.com/AndikanGabriel/coindesk/pull/6)
+
+### Changed
+- Update test suite for unsupported currency using a nonexistent currency [(3c89457)](https://github.com/AndikanGabriel/coindesk/commit/3c89457c2de89f64e7d711f91746f1ec551d9a8e)
 
 ## [v1.0.2](https://github.com/AndikanGabriel/coindesk/compare/v1.0.1...v1.0.2) - 2021-05-15
 ### Fixed
