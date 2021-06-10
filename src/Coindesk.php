@@ -200,11 +200,11 @@ class Coindesk
      *
      * @param  string  $currencyCode
      * @param  float  $btcAmount
-     * @return float
+     * @return float|string
      *
      * @throws \GabrielAndy\Coindesk\Exceptions\CoindeskException
      */
-    public function toFiatCurrency($currencyCode, $btcAmount): float
+    public function toFiatCurrency($currencyCode, $btcAmount): float|string
     {
         if (! is_numeric($btcAmount)) {
             throw new CoindeskException("
@@ -228,7 +228,7 @@ class Coindesk
     {
         $rate = is_numeric($rate) ? $rate : (float) $rate;
 
-        return $btcAmount * $rate;
+        return $this->formatInteger($btcAmount * $rate);
     }
 
     /**
@@ -256,7 +256,7 @@ class Coindesk
      *
      * @param  float  $amount
      * @param  float  $rate
-     * @return float
+     * @return string
      *
      * @throws \GabrielAndy\Coindesk\Exceptions\CoindeskException
      */
@@ -264,6 +264,41 @@ class Coindesk
     {
         $rate = is_numeric($rate) ? $rate : (float) $rate;
 
-        return $amount / $rate;
+        return $this->formatInteger($amount / $rate);
+    }
+
+    /**
+     * Format integer for monetal use while preserving insignificant values.
+     *
+     * @param  float  $integer
+     * @return string
+     */
+    public function formatInteger(float $integer): string
+    {
+        // Get the float value of the integer
+        $amount = strval(floatval($integer));
+
+        // Split the amount to get the exponent
+        $amount = explode('E', $amount);
+
+        if (isset($amount[1])) {
+            $exponent = $amount[1];
+
+            $pos = strpos($exponent, '-', 0);
+
+            $exponent = abs($exponent);
+
+            if ($pos !== false) {
+                $digit = round($amount[0], 1);
+
+                $digit = bcdiv($digit, 10**$exponent, $exponent+1);
+            } else {
+                $digit = bcmul($amount[0], 10**$exponent, 2);
+            }
+        } else {
+            $digit = number_format($integer, 2, '.', '');
+        }
+
+        return $digit;
     }
 }

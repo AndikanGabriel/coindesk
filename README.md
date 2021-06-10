@@ -35,9 +35,9 @@ use Coindesk;
  */
 Coindesk::toFiatCurrency($currency_code, $bitcoin_amount);
 
-Coindesk::toFiatCurrency('USD', 1); // This will return 34381.5206 stating that ₿1 = $34,381.5206
-Coindesk::toFiatCurrency('EUR', 1); // This will return 28431.5957 stating that ₿1 = €28,431.5957
-Coindesk::toFiatCurrency('NGN', 1); // This will return 14261794.0186 stating that ₿1 = ₦14,261,794.0186
+Coindesk::toFiatCurrency('USD', 1); // This will return 36579.71 stating that ₿1 = $36,579.71
+Coindesk::toFiatCurrency('EUR', 1); // This will return 29951.01 stating that ₿1 = €29,951.01
+Coindesk::toFiatCurrency('NGN', 1); // This will return 15028918.04 stating that ₿1 = ₦15,028,918.04
 ```
 
 ### To convert any Coindesk's supported fiat currency value to Bitcoin
@@ -55,9 +55,9 @@ use Coindesk;
  */
 Coindesk::toBtc($amount, $currency_code);
 
-Coindesk::toBtc(1, 'USD'); // This will return 2.8881896998808E-5
-Coindesk::toBtc(1, 'EUR'); // This will return 3.5258494994032E-5
-Coindesk::toBtc(1, 'NGN'); // This will return 7.0297483496097E-8
+Coindesk::toBtc(1, 'USD'); // This will return 0.000027 stating that $1 = ₿0.000027
+Coindesk::toBtc(1, 'EUR'); // This will return 0.000034 stating that €1 = ₿0.000034
+Coindesk::toBtc(1, 'NGN'); // This will return 0.000000067 stating that ₦1 = ₿0.000000067
 ```
 
 ## Changelog
