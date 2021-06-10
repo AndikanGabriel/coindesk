@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased](https://github.com/AndikanGabriel/coindesk/compare/v1.2.0...1.x)
+## [Unreleased](https://github.com/AndikanGabriel/coindesk/compare/v1.2.0...master)
 
 ## [v1.2.0](https://github.com/AndikanGabriel/coindesk/compare/v1.1.0...v1.2.0) - 2021-06-10
 ### Added
