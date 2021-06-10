@@ -1,6 +1,10 @@
 # Changelog
 
-## [Unreleased](https://github.com/AndikanGabriel/coindesk/compare/v1.1.0...1.x)
+## [Unreleased](https://github.com/AndikanGabriel/coindesk/compare/v1.2.0...1.x)
+
+## [v1.2.0](https://github.com/AndikanGabriel/coindesk/compare/v1.1.0...v1.2.0) - 2021-06-10
+### Added
+- Format figures beyond 0 to 2-s.f and maintain 2-d.p for figures above 1 [(0bd71e2)](https://github.com/AndikanGabriel/coindesk/commit/0bd71e200c4b1dc6ade682fd131e902d9f837fc8)
 
 ## [v1.1.0](https://github.com/AndikanGabriel/coindesk/compare/v1.0.2...v1.1.0) - 2021-06-09
 ### Added
